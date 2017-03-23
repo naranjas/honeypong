@@ -838,7 +838,7 @@ int RS232_GetPorts(int * inout)
 		if(Cport[i]!=INVALID_HANDLE_VALUE)
 		{
 			CloseHandle(Cport[i]);
-			printf("Valid open comport %i\r\n",i);
+			//printf("Valid open comport %i\r\n",i);
 			inout[count]=i;
 			count++;
 		}

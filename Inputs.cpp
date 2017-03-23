@@ -144,9 +144,6 @@ bool Inputs::init (void)
 
 bool Inputs::loadConfig(const char* path)
 {
-	int i[10]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-	int count = 0;
-
 	if(!loadFromFile(path))
 		return false; // operation failed
 

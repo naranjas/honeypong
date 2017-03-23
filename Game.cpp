@@ -70,7 +70,7 @@ void Game::menu()
 			switch(inputs.last_key){
 			case sf::Keyboard::Escape: state = END;  break;
 			case sf::Keyboard::Space:  state = GAME; break;
-			case sf::Keyboard::C:      state = CONFIG; printf("config!!\r\n"); break;
+			case sf::Keyboard::C:      state = CONFIG; break;
 			default: break;
 			}
 		}
@@ -127,8 +127,6 @@ void Game::config()
 
 	optioncount = 1 + inputs.getComCount(serials);
 
-	printf("--------\r\noptioncount = %i\r\n-----------",optioncount);
-
 	box.setSize(boxsize);
 	box.setOutlineColor(sf::Color::Yellow);
 	box.setFillColor(sf::Color::Black);
@@ -171,7 +169,6 @@ void Game::config()
 				{
 					inputs.left.source = INPUT_SOURCE_SERIAL;
 					inputs.left.comPort = serials[option[0]-2]+1; // Port numbers start from 0 (COM1)
-					printf("serials[option[0]-1] = %i;",serials[option[0]-2] );
 				}
 				if     (option[1]==0) inputs.right.source = INPUT_SOURCE_KEYBOARD;
 				else if(option[1]==1) inputs.right.source = INPUT_SOURCE_CPU;
@@ -179,7 +176,6 @@ void Game::config()
 				{
 					inputs.right.source = INPUT_SOURCE_SERIAL;
 					inputs.right.comPort = serials[option[1]-2]+1; // Port numbers start from 0 (COM1)
-					printf("serials[option[0]-1] = %i;",serials[option[1]-2] );
 				}
 				state = GAME;
 				break;
