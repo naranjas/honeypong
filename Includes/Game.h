@@ -14,7 +14,7 @@ class Game: public sf::Transformable
 public:
 	const int Width =GAME_WIDTH;
 	const int Height=GAME_HEIGHT;
-    enum GameState {MENU, GAME, SCORE, GAME_OVER, END};
+    enum GameState {MENU, GAME, CONFIG, SCORE, GAME_OVER, END};
     GameState state;
 
     sf::RenderWindow window;
@@ -40,6 +40,8 @@ public:
 	void play();
 
 	void score();
+
+	void config();
 
 	void options();
 };

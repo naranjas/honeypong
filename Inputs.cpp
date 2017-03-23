@@ -111,15 +111,8 @@ bool Inputs::loadFromFile(const char * filename)
 	return success;
 }
 
-
-bool Inputs::loadConfig(const char* path)
+bool Inputs::init (void)
 {
-	//left.source  = INPUT_SOURCE_KEYBOARD;  //TODO: remove this fixed value
-	//right.source = INPUT_SOURCE_KEYBOARD; //TODO: remove this fixed value
-
-	if(!loadFromFile(path))
-		return false; // operation failed
-
 	if(right.source == INPUT_SOURCE_SERIAL)
 	{
 		char mode[]={'8','N','1',0};
@@ -129,6 +122,8 @@ bool Inputs::loadConfig(const char* path)
 			perror("Unable to open com port for right player");
 			return false;
 		}
+		// wait for an instant before trying to use com ports
+		sf::sleep(sf::milliseconds(400));
 	}
 	if(left.source == INPUT_SOURCE_SERIAL)
 	{
@@ -139,10 +134,23 @@ bool Inputs::loadConfig(const char* path)
 			perror("Unable to open com port for right player");
 			return false;
 		}
+		// wait for an instant before trying to use com ports
+		sf::sleep(sf::milliseconds(400));
 	}
 
 	initialized = true;
 	return initialized;
+}
+
+bool Inputs::loadConfig(const char* path)
+{
+	int i[10]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+	int count = 0;
+
+	if(!loadFromFile(path))
+		return false; // operation failed
+
+	return true;
 }
 
 InputEvent Inputs::pollInputs(sf::RenderWindow * w)
@@ -158,8 +166,12 @@ InputEvent Inputs::pollInputs(sf::RenderWindow * w)
 
 		if(keyboard.isKeyPressed(sf::Keyboard::Up)
 				|| keyboard.isKeyPressed(sf::Keyboard::Down)
+				|| keyboard.isKeyPressed(sf::Keyboard::Left)
+				|| keyboard.isKeyPressed(sf::Keyboard::Right)
 				|| keyboard.isKeyPressed(sf::Keyboard::Escape)
 				|| keyboard.isKeyPressed(sf::Keyboard::Space)
+				|| keyboard.isKeyPressed(sf::Keyboard::Return)
+				|| keyboard.isKeyPressed(sf::Keyboard::C)
 		)
 		{
 			last_key = event.key.code;
@@ -215,3 +227,5 @@ void Input::sendPosition(int x, int y, float rad)
 		last_y = cpu.move(x, y, (int)rad2deg(rad));
 	}
 }
+
+int Inputs::getComCount(int * i) {	return RS232_GetPorts(i);  }

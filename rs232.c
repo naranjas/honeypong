@@ -818,8 +818,34 @@ int RS232_GetPortnr(const char *devname)
 }
 
 
+/* return the index of the comports that could be opened by the application */
+int RS232_GetPorts(int * inout)
+{
+	int count = 0;
+	int i=0;
 
+	// one by one try to open the ports, return a list of the valid ports
+	for(i=0;i<RS232_PORTNR;i++)
+	{
+		Cport[i] = CreateFileA(comports[i],
+							  GENERIC_READ|GENERIC_WRITE,
+							  0,                          /* no share  */
+							  NULL,                       /* no security */
+							  OPEN_EXISTING,
+							  0,                          /* no threads */
+							  NULL);                      /* no templates */
 
+		if(Cport[i]!=INVALID_HANDLE_VALUE)
+		{
+			CloseHandle(Cport[i]);
+			printf("Valid open comport %i\r\n",i);
+			inout[count]=i;
+			count++;
+		}
+	}
+
+	return count;
+}
 
 
 

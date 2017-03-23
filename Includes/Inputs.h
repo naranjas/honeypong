@@ -50,6 +50,8 @@ public:
 	sf::Keyboard::Key last_key;
 	InputEvent pollInputs(sf::RenderWindow *);
 	bool loadConfig(const char* path);
+	bool init(void);
+	int getComCount(int *);
 	bool initialized=false;
 };
 

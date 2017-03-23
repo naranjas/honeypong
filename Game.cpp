@@ -4,6 +4,7 @@
 #include <ctime>
 #include <stdio.h>
 #include <cstdlib>
+#include <unistd.h>
 
 Game::Game()
 {
@@ -12,7 +13,7 @@ Game::Game()
 		return ;
 	if (inputs.loadConfig(".\\resources\\config.cfg")!= true)
 		return ;
-	if (splashTexture.loadFromFile(".\\resources\\splash.jpg") != true)
+	if (splashTexture.loadFromFile(".\\resources\\splash.png") != true)
 		return ;
 	if(font.loadFromFile(".\\resources\\sansation.ttf")!=true)
 		return;
@@ -43,6 +44,9 @@ void Game::runGame()
 		case SCORE:
 			score();
 			break;
+		case CONFIG:
+			config();
+			break;
 		case END:
 			break;
 		default:
@@ -66,6 +70,7 @@ void Game::menu()
 			switch(inputs.last_key){
 			case sf::Keyboard::Escape: state = END;  break;
 			case sf::Keyboard::Space:  state = GAME; break;
+			case sf::Keyboard::C:      state = CONFIG; printf("config!!\r\n"); break;
 			default: break;
 			}
 		}
@@ -106,8 +111,134 @@ void Game::score()
 	return;
 }
 
+void Game::config()
+{
+	sf::Text lbl[2];
+	sf::Text set[2];
+	int option[2]={0,0};
+
+	sf::RectangleShape box;
+	sf::Vector2f boxsize(100,40);
+	int boxpos = 0; //left by default
+
+	int optioncount = 0; //get options count
+	int serials[8] = {0,0,0,0,0,0,0,0};
+	char strbuf[16];
+
+	optioncount = 1 + inputs.getComCount(serials);
+
+	printf("--------\r\noptioncount = %i\r\n-----------",optioncount);
+
+	box.setSize(boxsize);
+	box.setOutlineColor(sf::Color::Yellow);
+	box.setFillColor(sf::Color::Black);
+	box.setOutlineThickness(5);
+	box.setOrigin( boxsize / 2.f );
+	box.setPosition((GAME_WIDTH/3)+50,GAME_HEIGHT/2);
+
+	lbl[0].setFont(font);
+	lbl[0].setString("Player1");
+	lbl[0].setPosition(GAME_WIDTH/3,GAME_HEIGHT/2);
+	lbl[0].setFillColor(sf::Color::Yellow);
+
+	lbl[1].setFont(font);
+	lbl[1].setString("Player2");
+	lbl[1].setPosition(GAME_WIDTH*2/3,GAME_HEIGHT/2);
+	lbl[1].setFillColor(sf::Color::Yellow);
+
+	set[0].setFont(font);
+	set[0].setString("KEY");
+	set[0].setPosition(GAME_WIDTH/3,50+(GAME_HEIGHT/2));
+	set[0].setFillColor(sf::Color::White);
+
+	set[1].setFont(font);
+	set[1].setString("KEY");
+	set[1].setPosition(GAME_WIDTH*2/3,50+(GAME_HEIGHT/2));
+	set[1].setFillColor(sf::Color::White);
+
+	while(state == CONFIG)
+	{
+		InputEvent ie = inputs.pollInputs(&window);
+		if(ie == IE_KEY_PRESS)
+		{
+			switch(inputs.last_key){
+			case sf::Keyboard::Escape: state = END;  break;
+			case sf::Keyboard::Space:
+			case sf::Keyboard::Return:
+				if     (option[0]==0) inputs.left.source = INPUT_SOURCE_KEYBOARD;
+				else if(option[0]==1) inputs.left.source = INPUT_SOURCE_CPU;
+				else
+				{
+					inputs.left.source = INPUT_SOURCE_SERIAL;
+					inputs.left.comPort = serials[option[0]-2]+1; // Port numbers start from 0 (COM1)
+					printf("serials[option[0]-1] = %i;",serials[option[0]-2] );
+				}
+				if     (option[1]==0) inputs.right.source = INPUT_SOURCE_KEYBOARD;
+				else if(option[1]==1) inputs.right.source = INPUT_SOURCE_CPU;
+				else
+				{
+					inputs.right.source = INPUT_SOURCE_SERIAL;
+					inputs.right.comPort = serials[option[1]-2]+1; // Port numbers start from 0 (COM1)
+					printf("serials[option[0]-1] = %i;",serials[option[1]-2] );
+				}
+				state = GAME;
+				break;
+			case sf::Keyboard::Left:
+				boxpos=0;
+				break;
+			case sf::Keyboard::Right:
+				boxpos=1;
+				break;
+			case sf::Keyboard::Up:
+				if(option[boxpos]<optioncount)
+					option[boxpos]++;
+				else
+					option[boxpos]=0;
+				break;
+			case sf::Keyboard::Down:
+				if(option[boxpos]>0)
+					option[boxpos]--;
+				else
+					option[boxpos]=optioncount;
+				break;
+			default: break;
+			}
+		}
+
+		if(boxpos==0)
+			box.setPosition((GAME_WIDTH/3)+50,70+(GAME_HEIGHT/2));
+		else
+			box.setPosition(50+(GAME_WIDTH*2/3),70+(GAME_HEIGHT/2));
+
+		if (option[boxpos]==0)
+			set[boxpos].setString("KEY");
+		else if (option[boxpos]==1)
+			set[boxpos].setString("CPU");
+		else
+		{
+			sprintf(strbuf,"COM%i",serials[option[boxpos]-2]+1);
+			set[boxpos].setString(strbuf);
+		}
+
+		window.clear(sf::Color::Black);
+
+	// Redraw objects (should happen about 60 times per second)
+		window.draw(box);
+		window.draw(lbl[0]);
+		window.draw(lbl[1]);
+		window.draw(set[0]);
+		window.draw(set[1]);
+		window.display();
+	}
+
+	return;
+}
+
 void Game::play()
 {
+	if(!inputs.initialized)
+		inputs.init();
+
 	// Initialize positions
 	ball.setStart(Width/2,Height/2);
 	paddles.left.setStart(paddles.left.width,Height/2);
