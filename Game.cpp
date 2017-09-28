@@ -111,18 +111,25 @@ void Game::score()
 	return;
 }
 
+enum players
+{
+	LEFT_PLAYER  = 0,
+	RIGHT_PLAYER = 1,
+	PLAYER_COUNT = 2
+};
+
 void Game::config()
 {
-	sf::Text lbl[2];
-	sf::Text set[2];
-	int option[2]={0,0};
+	sf::Text lbl[PLAYER_COUNT];
+	sf::Text set[PLAYER_COUNT];
+	int option[PLAYER_COUNT]={0,0};
 
 	sf::RectangleShape box;
 	sf::Vector2f boxsize(100,40);
 	int boxpos = 0; //left by default
 
 	int optioncount = 0; //get options count
-	int serials[8] = {0,0,0,0,0,0,0,0};
+	int serials[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 	char strbuf[16];
 
 	optioncount = 1 + inputs.getComCount(serials);
@@ -134,25 +141,25 @@ void Game::config()
 	box.setOrigin( boxsize / 2.f );
 	box.setPosition((GAME_WIDTH/3)+50,GAME_HEIGHT/2);
 
-	lbl[0].setFont(font);
-	lbl[0].setString("Player1");
-	lbl[0].setPosition(GAME_WIDTH/3,GAME_HEIGHT/2);
-	lbl[0].setFillColor(sf::Color::Yellow);
+	lbl[LEFT_PLAYER].setFont(font);
+	lbl[LEFT_PLAYER].setString("Player1");
+	lbl[LEFT_PLAYER].setPosition(GAME_WIDTH/3,GAME_HEIGHT/2);
+	lbl[LEFT_PLAYER].setFillColor(sf::Color::Yellow);
 
-	lbl[1].setFont(font);
-	lbl[1].setString("Player2");
-	lbl[1].setPosition(GAME_WIDTH*2/3,GAME_HEIGHT/2);
-	lbl[1].setFillColor(sf::Color::Yellow);
+	lbl[RIGHT_PLAYER].setFont(font);
+	lbl[RIGHT_PLAYER].setString("Player2");
+	lbl[RIGHT_PLAYER].setPosition(GAME_WIDTH*2/3,GAME_HEIGHT/2);
+	lbl[RIGHT_PLAYER].setFillColor(sf::Color::Yellow);
 
-	set[0].setFont(font);
-	set[0].setString("KEY");
-	set[0].setPosition(GAME_WIDTH/3,50+(GAME_HEIGHT/2));
-	set[0].setFillColor(sf::Color::White);
+	set[LEFT_PLAYER].setFont(font);
+	set[LEFT_PLAYER].setString("KEY");
+	set[LEFT_PLAYER].setPosition(GAME_WIDTH/3,50+(GAME_HEIGHT/2));
+	set[LEFT_PLAYER].setFillColor(sf::Color::White);
 
-	set[1].setFont(font);
-	set[1].setString("KEY");
-	set[1].setPosition(GAME_WIDTH*2/3,50+(GAME_HEIGHT/2));
-	set[1].setFillColor(sf::Color::White);
+	set[RIGHT_PLAYER].setFont(font);
+	set[RIGHT_PLAYER].setString("KEY");
+	set[RIGHT_PLAYER].setPosition(GAME_WIDTH*2/3,50+(GAME_HEIGHT/2));
+	set[RIGHT_PLAYER].setFillColor(sf::Color::White);
 
 	while(state == CONFIG)
 	{
@@ -163,27 +170,27 @@ void Game::config()
 			case sf::Keyboard::Escape: state = END;  break;
 			case sf::Keyboard::Space:
 			case sf::Keyboard::Return:
-				if     (option[0]==0) inputs.left.source = INPUT_SOURCE_KEYBOARD;
-				else if(option[0]==1) inputs.left.source = INPUT_SOURCE_CPU;
+				if     (option[LEFT_PLAYER]==0) inputs.left.source = INPUT_SOURCE_KEYBOARD;
+				else if(option[LEFT_PLAYER]==1) inputs.left.source = INPUT_SOURCE_CPU;
 				else
 				{
 					inputs.left.source = INPUT_SOURCE_SERIAL;
-					inputs.left.comPort = serials[option[0]-2]+1; // Port numbers start from 0 (COM1)
+					inputs.left.comPort = serials[option[LEFT_PLAYER]-2]+1; // Port numbers start from 0 (COM1)
 				}
-				if     (option[1]==0) inputs.right.source = INPUT_SOURCE_KEYBOARD;
-				else if(option[1]==1) inputs.right.source = INPUT_SOURCE_CPU;
+				if     (option[RIGHT_PLAYER]==0) inputs.right.source = INPUT_SOURCE_KEYBOARD;
+				else if(option[RIGHT_PLAYER]==1) inputs.right.source = INPUT_SOURCE_CPU;
 				else
 				{
 					inputs.right.source = INPUT_SOURCE_SERIAL;
-					inputs.right.comPort = serials[option[1]-2]+1; // Port numbers start from 0 (COM1)
+					inputs.right.comPort = serials[option[RIGHT_PLAYER]-2]+1; // Port numbers start from 0 (COM1)
 				}
 				state = GAME;
 				break;
 			case sf::Keyboard::Left:
-				boxpos=0;
+				boxpos=LEFT_PLAYER;
 				break;
 			case sf::Keyboard::Right:
-				boxpos=1;
+				boxpos=RIGHT_PLAYER;
 				break;
 			case sf::Keyboard::Up:
 				if(option[boxpos]<optioncount)
@@ -201,7 +208,7 @@ void Game::config()
 			}
 		}
 
-		if(boxpos==0)
+		if(boxpos==LEFT_PLAYER)
 			box.setPosition((GAME_WIDTH/3)+50,70+(GAME_HEIGHT/2));
 		else
 			box.setPosition(50+(GAME_WIDTH*2/3),70+(GAME_HEIGHT/2));
@@ -220,10 +227,10 @@ void Game::config()
 
 	// Redraw objects (should happen about 60 times per second)
 		window.draw(box);
-		window.draw(lbl[0]);
-		window.draw(lbl[1]);
-		window.draw(set[0]);
-		window.draw(set[1]);
+		window.draw(lbl[LEFT_PLAYER]);
+		window.draw(lbl[RIGHT_PLAYER]);
+		window.draw(set[LEFT_PLAYER]);
+		window.draw(set[RIGHT_PLAYER]);
 		window.display();
 	}
 

@@ -179,12 +179,13 @@ InputEvent Inputs::pollInputs(sf::RenderWindow * w)
 	if(right.source == INPUT_SOURCE_SERIAL)
 	{
 		unsigned char buf[61];
+		memset(buf,0,sizeof(buf));
 		int n= RS232_PollComport(right.comPort-1, buf, 60);
 
 		if(n > 0)
 		{
-			sscanf((const char*)buf,"POS:%i",&right.last_y);
-			printf(">>rx POS:%i\n", right.last_y);
+			sscanf((const char*)buf,"POS:%3i",&right.last_y);
+			printf(">> %s >> New position = %i\n", buf, right.last_y);
 
 			return IE_SER_DATA;
 		}
@@ -192,11 +193,12 @@ InputEvent Inputs::pollInputs(sf::RenderWindow * w)
 	if(left.source == INPUT_SOURCE_SERIAL)
 	{
 		unsigned char buf[61];
+		memset(buf,0,sizeof(buf));
 		int n= RS232_PollComport(left.comPort-1, buf, 60);
 
 		if(n > 0)
 		{
-			sscanf((const char*)buf,"POS:%i",&left.last_y);
+			sscanf((const char*)buf,"POS:%3i",&left.last_y);
 			printf(">>rx POS:%i\n", left.last_y);
 
 			return IE_SER_DATA;
